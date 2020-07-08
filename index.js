@@ -3,6 +3,7 @@ const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const path = require('path')
 
 const mongoURL = 'mongodb://localhost:27017/Now_News'
 mongoose.connect(mongoURL, {
@@ -15,7 +16,8 @@ mongoose.connect(mongoURL, {
   console.log('Gagal konek ke database')
 })
 
-
+const directory = path.join(__dirname, '/statics/')
+app.use(express.static(directory))
 app.use(cors())
 
 app.use(bodyParser.json({

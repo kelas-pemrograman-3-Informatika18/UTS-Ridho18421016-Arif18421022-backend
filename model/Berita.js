@@ -10,6 +10,9 @@ const BeritaSchema = new Schema({
   },
   isi: {
     type: String
+  },
+  image: {
+    type: String
   }
 })
 

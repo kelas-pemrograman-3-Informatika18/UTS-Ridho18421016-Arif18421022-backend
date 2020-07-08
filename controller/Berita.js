@@ -1,5 +1,6 @@
 const beritaController = require('../model/Berita')
 const objectId = require('mongoose').Types.ObjectId
+const { deleteImage } = require('../uploadConfig')
 
 exports.simpanKegiatan = (data) =>
   new Promise((resolve, reject) => {
@@ -19,7 +20,7 @@ exports.simpanKegiatan = (data) =>
 
 exports.tampilKegiatan = () =>
   new Promise((resolve, reject) => {
-    beritaController.find()
+    beritaController.find({})
     .then(data => {
       resolve({
         sukses: true,
@@ -35,11 +36,15 @@ exports.tampilKegiatan = () =>
     })
   })
 
-exports.edit = (data, id) =>
+exports.edit = (data, id, changeImage) =>
   new Promise((resolve, reject) => {
     beritaController.updateOne({
       _id: objectId(id)
-    },data).then(() => {
+    }, data)
+    .then(() => {
+      if (changeImage) {
+        deleteImage(data.oldImage)
+      }
       resolve({
         sukses: true,
         pesan: 'Berhasil Mengubah Data'
@@ -56,22 +61,31 @@ exports.tampilkanSatuData = (id) =>
   new Promise((resolve, reject) => {
     beritaController.findOne({
       _id: objectId(id)
-    }).then((data) => {
-      resolve(data)
-    }).catch(() => reject({
-      sukses: true,
+    }).then(data => {
+      resolve({
+        data: data,
+        sukses: true,
+        pesan: 'Berhasil Memuat Data',
+      })
+    }).catch(error => reject({
+      sukses: false,
       pesan: 'Gagal Memuat Data'
     }))
   })
 
 exports.delete = (id) =>
   new Promise((resolve, reject) => {
-    beritaController.deleteOne({
+    beritaController.findOne({
       _id: objectId(id)
-    }).then(() => {
-      resolve({
-        sukses: true,
-        pesan: 'Berhasil Menghapus Data'
+    }).then(data => {
+      beritaController.deleteOne({
+        _id: objectId(id)
+      }).then(() => {
+        deleteImage(data.image)
+          resolve({
+          sukses: true,
+          pesan: 'Berhasil Menghapus Data'
+        })
       })
     }).catch(() => {
       reject({
